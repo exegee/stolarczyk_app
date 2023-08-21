@@ -1,15 +1,16 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stolarczyk_app/models/topic.dart';
 import 'package:stolarczyk_app/models/topic_comment.dart';
 import 'package:stolarczyk_app/providers/db.dart';
 
 import '../models/appUser.dart';
 
 class NewTopicComment extends ConsumerStatefulWidget {
-  const NewTopicComment({super.key, required this.topicUid});
+  const NewTopicComment(
+      {super.key, required this.topicUid, this.onNewCommentSend});
   final String topicUid;
+  final VoidCallback? onNewCommentSend;
 
   @override
   ConsumerState<NewTopicComment> createState() => _NewTopicCommentState();
@@ -31,36 +32,34 @@ class _NewTopicCommentState extends ConsumerState<NewTopicComment> {
       return;
     }
     // Get current user from appUserProvider
-    AppUser user = ref.watch(appUserProvider);
-    FocusScope.of(context).unfocus();
+    AppUser? user = await DbProvider.getAuthenticatedUser();
+    ref.read(topicProvider.notifier).modifyTopicCommentCount(1);
+    // FocusScope.of(context).unfocus();
     TopicComment newTopicComment = TopicComment(
-        text: enteredMessage, createdBy: user, dateCreated: DateTime.now());
-    final DocumentReference userRef =
-        await DbProvider.getAuthenticatedUserRef();
+        text: enteredMessage, createdBy: user!, dateCreated: DateTime.now());
     await DbProvider.sendTopicComment(widget.topicUid, newTopicComment);
+    widget.onNewCommentSend!.call();
     _commentController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 1, bottom: 14),
-      child: Row(children: [
-        Expanded(
-          child: TextField(
-            controller: _commentController,
-            textCapitalization: TextCapitalization.sentences,
-            autocorrect: true,
-            enableSuggestions: true,
-            decoration: const InputDecoration(labelText: 'Co masz na myśli?'),
-          ),
-        ),
-        IconButton(
-          onPressed: _submitMessage,
-          icon: const Icon(Icons.send),
-          color: Theme.of(context).colorScheme.primary,
-        )
-      ]),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 15),
+      child: TextField(
+        controller: _commentController,
+        textCapitalization: TextCapitalization.sentences,
+        autocorrect: true,
+        enableSuggestions: true,
+        decoration: InputDecoration(
+            contentPadding: const EdgeInsets.only(left: 10),
+            labelText: 'Co masz na myśli?',
+            suffixIcon: IconButton(
+              onPressed: _submitMessage,
+              icon: const Icon(Icons.send),
+              color: Theme.of(context).colorScheme.primary,
+            )),
+      ),
     );
   }
 }

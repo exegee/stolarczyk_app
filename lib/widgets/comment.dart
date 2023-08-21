@@ -1,19 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import 'package:stolarczyk_app/models/appUser.dart';
 import 'package:stolarczyk_app/models/topic_comment.dart';
-import 'package:stolarczyk_app/screens/topic_comment_reply_screen.dart';
+import 'package:stolarczyk_app/providers/db.dart';
 import 'package:timeago/timeago.dart' as timeago;
 
-class Comment extends StatelessWidget {
-  const Comment(
-      {super.key, required this.topicComment, required this.topicUid});
+class Comment extends ConsumerWidget {
+  const Comment({
+    super.key,
+    required this.topicComment,
+    required this.topicUid,
+    required this.commentReply,
+    required this.showDivider,
+    this.onDeleteComment,
+  });
 
   final TopicComment topicComment;
   final String topicUid;
+  final bool commentReply;
+  final bool showDivider;
+  final ValueChanged<int>? onDeleteComment;
 
   @override
-  Widget build(BuildContext context) {
-    print(topicComment.uid);
+  Widget build(BuildContext context, WidgetRef ref) {
+    final user = ref.watch(appUserProvider);
+    final canDeleteComment = user.uid == topicComment.createdBy.uid;
     final String dateAgo =
         timeago.format(topicComment.dateCreated, locale: 'pl');
     final String topicHour =
@@ -74,11 +86,24 @@ class Comment extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(Icons.more_vert),
-                      iconSize: 20,
-                    ),
+                    // Dorobic usuwanie odpowiedzi!!! wykorzystac topicocmmentreply
+                    canDeleteComment
+                        ? PopupMenuButton(
+                            surfaceTintColor: Colors.grey,
+                            itemBuilder: (_) => [
+                                  PopupMenuItem(
+                                    child: const Text('Usuń'),
+                                    onTap: () async {
+                                      await DbProvider.removeTopicComment(
+                                              topicUid, topicComment)
+                                          .then((value) {
+                                        print(value);
+                                        onDeleteComment!(value);
+                                      });
+                                    },
+                                  )
+                                ])
+                        : const SizedBox()
                   ],
                 ),
               )
@@ -88,26 +113,6 @@ class Comment extends StatelessWidget {
             height: 12,
           ),
           Text(topicComment.text),
-          Row(
-            children: [
-              TextButton.icon(
-                onPressed: () {
-                  Navigator.pushNamed(context, TopicCommentReply.routeName,
-                      arguments: {
-                        'topicComment': topicComment,
-                        'topicUid': topicUid
-                      });
-                },
-                icon: const Icon(
-                  Icons.reply,
-                  size: 18,
-                ),
-                label: const Text('Odpowiedz'),
-                style: TextButton.styleFrom(foregroundColor: Colors.grey[600]),
-              )
-            ],
-          ),
-          const Divider(),
         ],
       ),
     );

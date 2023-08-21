@@ -5,21 +5,24 @@ import 'package:drop_shadow_image/drop_shadow_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:stolarczyk_app/models/appUser.dart';
 import 'package:stolarczyk_app/screens/signin_screen.dart';
 
+import '../providers/navigation.dart';
 import '../widgets/user_image_picker.dart';
 
 final _firebase = FirebaseAuth.instance;
 
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   static const routeName = '/signup';
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _form = GlobalKey<FormState>();
 
   var _enteredEmail = '';
@@ -35,7 +38,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
       // show error message ...
       return;
     }
-
+    //String imageUrl = '';
     _form.currentState!.save();
 
     try {
@@ -61,7 +64,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
         'username': _enteredUsername,
         'email': _enteredEmail,
         'imageUrl': imageUrl,
+      }).whenComplete(() async {
+        // await SecureStorageProvider.writeSecureStorage(
+        //     StorageItem('username', _enteredUsername));
+        // await SecureStorageProvider.writeSecureStorage(
+        //     StorageItem('imageUrl', imageUrl));
+        // await SecureStorageProvider.writeSecureStorage(
+        //     StorageItem('email', _enteredEmail));
       });
+      ref.read(appUserProvider.notifier).modify(AppUser(
+          email: '', imagerUrl: imageUrl, username: _enteredUsername, uid: ''));
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
         // ...
@@ -72,10 +84,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
           content: Text(error.message ?? 'Uwierzytelnianie nie powiodło się'),
         ),
       );
-      setState(() {
-        _isAuthenticating = false;
-      });
     }
+
+    ref
+        .read(navigationProvider.notifier)
+        .modifyLastScreenIndex(Navigation(lastScreenIndexProvider: 0));
+
+    setState(() {
+      _isAuthenticating = false;
+      Navigator.pop(context);
+    });
   }
 
   @override
@@ -110,7 +128,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           fontSize: 14.0, fontWeight: FontWeight.w400),
                       obscureText: false,
                       keyboardType: TextInputType.emailAddress,
-                      initialValue: "test@test.com",
+                      //initialValue: "test@test.com",
                       enableSuggestions: false,
                       decoration: const InputDecoration(
                         labelText: "Adres e-mail",
@@ -163,7 +181,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                             TextStyle(fontSize: 13.0, color: Colors.grey),
                         hintText: "Wprowadź hasło",
                       ),
-                      initialValue: "123456",
+                      //initialValue: "123456",
                       obscureText: true,
                       validator: (value) {
                         if (value == null || value.trim().length < 6) {

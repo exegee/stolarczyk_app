@@ -1,24 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class AppUser {
-  final String? uid;
-  final String email;
-  final String username;
-  final String imagerUrl;
+  String? uid;
+  String email;
+  String username;
+  String imagerUrl;
+  List<String>? subscriptions;
 
   AppUser(
       {this.uid,
       required this.email,
       required this.username,
-      required this.imagerUrl});
+      required this.imagerUrl,
+      this.subscriptions});
 
   factory AppUser.fromMap(Map<String, dynamic> data) {
     return AppUser(
-      uid: data['uid'],
-      email: data['email'],
-      username: data['username'],
-      imagerUrl: data['imageUrl'],
-    );
+        uid: data['uid'],
+        email: data['email'],
+        username: data['username'],
+        imagerUrl: data['imageUrl'],
+        subscriptions: data['subscriptions']);
   }
 
   Map<String, dynamic> toMap() => {
@@ -29,7 +31,7 @@ class AppUser {
       };
 
   factory AppUser.init() {
-    return AppUser(email: '', username: '', imagerUrl: '');
+    return AppUser(uid: '', email: '', username: '', imagerUrl: '');
   }
 }
 

@@ -2,10 +2,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:stolarczyk_app/constants.dart';
+
 import 'package:stolarczyk_app/models/topic.dart';
-import 'package:stolarczyk_app/models/topic_comment.dart';
-import 'package:stolarczyk_app/screens/auth_screen.dart';
 
 import 'package:firebase_core/firebase_core.dart';
 import 'package:stolarczyk_app/screens/chat_screen.dart';
@@ -20,6 +18,7 @@ import 'package:stolarczyk_app/screens/topic_detail_screen.dart';
 import 'package:stolarczyk_app/screens/topics_screen.dart';
 import 'firebase_options.dart';
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
@@ -34,10 +33,11 @@ class StolarczykApp extends StatelessWidget {
   const StolarczykApp({super.key});
 
   // This widget is the root of your application.
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Stolarczyk',
       // Define a theme
       theme: ThemeData(
         appBarTheme: const AppBarTheme(
@@ -100,6 +100,11 @@ class StolarczykApp extends StatelessWidget {
             );
           });
         }
+        return MaterialPageRoute(
+          builder: (context) {
+            return const MainScreen();
+          },
+        );
       },
       // Static routes (without parameters)
       routes: {
@@ -111,6 +116,7 @@ class StolarczykApp extends StatelessWidget {
         OverviewScreen.routeName: (context) => const OverviewScreen(),
         ChatScreen.routeName: (context) => const ChatScreen(),
       },
+      navigatorKey: navigatorKey,
     );
   }
 }

@@ -1,10 +1,9 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 class Navigation {
-  final int? lastScreenIndexProvider;
+  final int lastScreenIndexProvider;
 
-  Navigation({this.lastScreenIndexProvider});
+  Navigation({this.lastScreenIndexProvider = 0});
 }
 
 class NavigationNotifier extends StateNotifier<Navigation> {

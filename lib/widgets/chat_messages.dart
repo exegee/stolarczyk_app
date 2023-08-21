@@ -17,7 +17,6 @@ class ChatMessages extends StatelessWidget {
           .snapshots(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          print('waiting');
           return const Center(
             child: CircularProgressIndicator(),
           );
@@ -25,13 +24,13 @@ class ChatMessages extends StatelessWidget {
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(
-            child: Text('No message found.'),
+            child: Text('Brak wiadomości.'),
           );
         }
 
         if (snapshot.hasError) {
           return const Center(
-            child: Text('Something went wrong...'),
+            child: Text('Coś poszło nie tak...'),
           );
         }
 

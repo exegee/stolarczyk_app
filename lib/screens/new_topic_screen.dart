@@ -1,12 +1,15 @@
+import 'dart:convert';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:stolarczyk_app/constants.dart';
 import 'package:stolarczyk_app/models/appUser.dart';
+import 'package:stolarczyk_app/models/storage_item.dart';
 import 'package:stolarczyk_app/models/topic.dart';
-
-import '../providers/secure_storage.dart';
+import 'package:stolarczyk_app/providers/db.dart';
+import 'package:stolarczyk_app/providers/secure_storage.dart';
 
 class NewTopicScreen extends ConsumerStatefulWidget {
   static const routeName = '/new-topic';
@@ -27,11 +30,12 @@ class _NewTopicScreenState extends ConsumerState<NewTopicScreen> {
       TextEditingController();
   final TextEditingController _deadlineController = TextEditingController();
   bool _isCreatingNewTopic = false;
-  AppUser user = AppUser.init();
+  AppUser? user = AppUser.init();
 
   @override
   void initState() {
     super.initState();
+    _init();
   }
 
   @override
@@ -43,10 +47,14 @@ class _NewTopicScreenState extends ConsumerState<NewTopicScreen> {
     _deadlineController.dispose();
   }
 
+  _init() async {
+    user = await DbProvider.getAuthenticatedUser();
+  }
+
   // On form submit
   void _submit() async {
     if (_formKey.currentState!.validate()) {
-      if (user.username.isEmpty || user.uid!.isEmpty) {
+      if (user!.username.isEmpty || user!.uid!.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
             content: Text('Nie można pobrać nazwy użytkownika.')));
         return;
@@ -62,17 +70,38 @@ class _NewTopicScreenState extends ConsumerState<NewTopicScreen> {
           shortDescription: _shortDescriptionController.text,
           longDescription: _longDescriptionController.text,
           status: false,
-          createdBy: user,
+          createdBy: user!,
           dateCreated: DateTime.now(),
           deadline: _deadline!,
           progress: 0,
-          priority: _topicPriority);
+          priority: _topicPriority,
+          commentsCount: 0,
+          completedTasks: 0,
+          totalTasks: 0);
       final topicDbRef = FirebaseFirestore.instance.collection('topics');
-      await topicDbRef.add(newTopic.toMap()).then((value) {
+      await topicDbRef.add(newTopic.toMap()).then((value) async {
+        int topicsCount = await DbProvider.getTopicsCount();
+        bool topicStatisticsExist =
+            await SecureStorageProvider.containsKeyInSecureData(
+                'topicsStatistics');
+        if (topicStatisticsExist) {
+          String? topicStatisticsRaw =
+              await SecureStorageProvider.readSecuredStorage(
+                  'topicsStatistics');
+          List<dynamic> topicStatisctics = jsonDecode(topicStatisticsRaw!);
+          topicStatisctics.add(topicsCount.toDouble());
+          await SecureStorageProvider.writeSecureStorage(StorageItem(
+              'topicsStatistics', (jsonEncode(topicStatisctics)).toString()));
+        } else {
+          await SecureStorageProvider.writeSecureStorage(StorageItem(
+              'topicsStatistics',
+              (jsonEncode([0.0, topicsCount.toDouble() + 1.0])).toString()));
+        }
         setState(() {
           _isCreatingNewTopic = false;
           _topicPriority = 0;
         });
+
         Navigator.pop(context, true);
       }).onError((error, stackTrace) {
         Navigator.pop(context, false);
@@ -84,7 +113,7 @@ class _NewTopicScreenState extends ConsumerState<NewTopicScreen> {
   @override
   Widget build(BuildContext context) {
     // Get current user from appUserProvider
-    user = ref.watch(appUserProvider);
+    //user = ref.watch(appUserProvider);
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(

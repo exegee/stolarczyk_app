@@ -31,14 +31,13 @@ class _NewMessageState extends State<NewMessage> {
         .collection('users')
         .doc(user.uid)
         .get();
-
     FirebaseFirestore.instance.collection('chat').add({
       'text': enteredMessage,
       'createdAt': Timestamp.now(),
       'userId': user.uid,
       'userRef': db.doc('users/${user.uid}'),
       'username': userData.data()!['username'],
-      'userImage': userData.data()!['image_url'],
+      'userImage': userData.data()!['imageUrl'],
     });
 
     _messageController.clear();
@@ -47,7 +46,7 @@ class _NewMessageState extends State<NewMessage> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 1, bottom: 14),
+      padding: const EdgeInsets.only(left: 15, right: 15, bottom: 14),
       child: Row(children: [
         Expanded(
           child: TextField(
@@ -55,14 +54,15 @@ class _NewMessageState extends State<NewMessage> {
             textCapitalization: TextCapitalization.sentences,
             autocorrect: true,
             enableSuggestions: true,
-            decoration: const InputDecoration(labelText: 'Wyślij wiadomość...'),
+            decoration: InputDecoration(
+                labelText: 'Wyślij wiadomość...',
+                suffixIcon: IconButton(
+                  onPressed: _submitMessage,
+                  icon: const Icon(Icons.send),
+                  color: Theme.of(context).colorScheme.primary,
+                )),
           ),
         ),
-        IconButton(
-          onPressed: _submitMessage,
-          icon: const Icon(Icons.send),
-          color: Theme.of(context).colorScheme.primary,
-        )
       ]),
     );
   }

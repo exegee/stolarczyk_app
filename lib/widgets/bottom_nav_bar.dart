@@ -26,7 +26,6 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
         _selectedPageIndex = index;
       });
     }
-
     widget
         .pageHandler(<int, Widget>{index: _screens[index]['screen'] as Widget});
     ref.read(navigationProvider.notifier).modifyLastScreenIndex(
@@ -57,11 +56,13 @@ class _BottomNavBarState extends ConsumerState<BottomNavBar> {
         'title': 'Profil',
       },
     ];
+
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    //_selectedPageIndex = ref.watch(navigationProvider).lastScreenIndexProvider;
     return BottomNavigationBar(
       type: BottomNavigationBarType.fixed,
       showSelectedLabels: false,

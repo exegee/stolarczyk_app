@@ -50,22 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyDXhXwA2mAm6XmzWFv3zyjiftzyefyV9ow',
-    appId: '1:952063960380:android:b395afbb1f88a605366a39',
-    messagingSenderId: '952063960380',
-    projectId: 'kaizen-5b90d',
-    databaseURL: 'https://kaizen-5b90d-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'kaizen-5b90d.appspot.com',
+    apiKey: 'AIzaSyBOyXiJRGXjuwuBSPkyCnhjpdYSYMlI780',
+    appId: '1:537786165552:android:8c6f017bc1748b3fb280f5',
+    messagingSenderId: '537786165552',
+    projectId: 'stolarczyk-todo',
+    storageBucket: 'stolarczyk-todo.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBSzvPGI70nZHgSiXIYEHbP4WwaXhV35yE',
-    appId: '1:952063960380:ios:2d080e3276b56faf366a39',
-    messagingSenderId: '952063960380',
-    projectId: 'kaizen-5b90d',
-    databaseURL: 'https://kaizen-5b90d-default-rtdb.europe-west1.firebasedatabase.app',
-    storageBucket: 'kaizen-5b90d.appspot.com',
-    iosClientId: '952063960380-fb5n5knfueuj6pqolerhrkd9alimlbe7.apps.googleusercontent.com',
-    iosBundleId: 'com.example.stolarczykApp',
+    apiKey: 'AIzaSyC-d0VMs-EGv6tKB2q_13y-AyIGEMTUYtI',
+    appId: '1:537786165552:ios:4feb05ff2b3a04e5b280f5',
+    messagingSenderId: '537786165552',
+    projectId: 'stolarczyk-todo',
+    storageBucket: 'stolarczyk-todo.appspot.com',
+    iosClientId: '537786165552-ljkeu3h5eig4hjsj0gf35h8fnc7dfsed.apps.googleusercontent.com',
+    iosBundleId: 'stolarczyk.todo',
   );
 }

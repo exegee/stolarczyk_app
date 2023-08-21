@@ -1,19 +1,20 @@
 import 'package:drop_shadow_image/drop_shadow_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:stolarczyk_app/screens/signup_screen.dart';
 
 final _firebase = FirebaseAuth.instance;
 
-class SignInScreen extends StatefulWidget {
+class SignInScreen extends ConsumerStatefulWidget {
   static const routeName = '/signin';
   const SignInScreen({super.key});
 
   @override
-  State<SignInScreen> createState() => _SignInScreenState();
+  ConsumerState<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends ConsumerState<SignInScreen> {
   final _form = GlobalKey<FormState>();
 
   var _enteredEmail = '';
@@ -37,6 +38,20 @@ class _SignInScreenState extends State<SignInScreen> {
 
       await _firebase.signInWithEmailAndPassword(
           email: _enteredEmail, password: _enteredPassword);
+      // if (mounted) {
+      //   await DbProvider.getAuthenticatedUser().then((value) {
+      //     if (mounted) {
+      //       ref.read(appUserProvider.notifier).modify(value!);
+      //     }
+      //   });
+      // }
+
+      //     await SecureStorageProvider.writeSecureStorage(
+      //     StorageItem('username', _enteredUsername));
+      // await SecureStorageProvider.writeSecureStorage(
+      //     StorageItem('imageUrl', imageUrl));
+      // await SecureStorageProvider.writeSecureStorage(
+      //     StorageItem('email', _enteredEmail));
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {
         // ...
@@ -50,6 +65,11 @@ class _SignInScreenState extends State<SignInScreen> {
       setState(() {
         _isAuthenticating = false;
       });
+
+      // await SecureStorageProvider.writeSecureStorage(
+      //     StorageItem('email', user.email));
+      // await SecureStorageProvider.writeSecureStorage(
+      //     StorageItem('imageUrl', user.imagerUrl));
     }
   }
 
@@ -78,7 +98,7 @@ class _SignInScreenState extends State<SignInScreen> {
                       fontSize: 14.0, fontWeight: FontWeight.w400),
                   obscureText: false,
                   keyboardType: TextInputType.emailAddress,
-                  initialValue: "test@test.com",
+                  //initialValue: "test@test.com",
                   enableSuggestions: false,
                   decoration: const InputDecoration(
                     labelText: "Adres e-mail",
@@ -106,7 +126,7 @@ class _SignInScreenState extends State<SignInScreen> {
                     labelStyle: TextStyle(fontSize: 13.0, color: Colors.grey),
                     hintText: "Wprowadź hasło",
                   ),
-                  initialValue: "123456",
+                  //initialValue: "123456",
                   obscureText: true,
                   validator: (value) {
                     if (value == null || value.trim().length < 6) {

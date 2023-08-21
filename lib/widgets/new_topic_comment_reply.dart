@@ -4,6 +4,7 @@ import 'package:stolarczyk_app/models/topic_comment.dart';
 import 'package:stolarczyk_app/providers/db.dart';
 
 import '../models/appUser.dart';
+import '../models/topic.dart';
 
 class NewTopicCommentReply extends ConsumerStatefulWidget {
   const NewTopicCommentReply({
@@ -36,38 +37,37 @@ class _NewTopicCommentState extends ConsumerState<NewTopicCommentReply> {
       return;
     }
     // Get current user from appUserProvider (Riverpod)
-    AppUser user = ref.watch(appUserProvider);
-    FocusScope.of(context).unfocus();
+    AppUser? user = await DbProvider.getAuthenticatedUser();
+    // FocusScope.of(context).unfocus();
     // Create new comment for this topic
     TopicComment newTopicComment = TopicComment(
-        text: enteredMessage, createdBy: user, dateCreated: DateTime.now());
+        text: enteredMessage, createdBy: user!, dateCreated: DateTime.now());
     // Send new comment to firebase
     await DbProvider.sendTopicCommentReply(
         widget.topicUid, widget.commentReplyTo, newTopicComment);
     // Clear comment text field
+    ref.read(topicProvider.notifier).modifyTopicCommentCount(1);
     _commentController.clear();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 1, bottom: 14),
-      child: Row(children: [
-        Expanded(
-          child: TextField(
-            controller: _commentController,
-            textCapitalization: TextCapitalization.sentences,
-            autocorrect: true,
-            enableSuggestions: true,
-            decoration: const InputDecoration(labelText: 'Co masz na myśli?'),
-          ),
-        ),
-        IconButton(
-          onPressed: _submitMessage,
-          icon: const Icon(Icons.send),
-          color: Theme.of(context).colorScheme.primary,
-        )
-      ]),
+      padding: const EdgeInsets.only(left: 10, right: 10, bottom: 15),
+      child: TextField(
+        controller: _commentController,
+        textCapitalization: TextCapitalization.sentences,
+        autocorrect: true,
+        enableSuggestions: true,
+        decoration: InputDecoration(
+            contentPadding: const EdgeInsets.only(left: 10),
+            labelText: 'Co masz na myśli?',
+            suffixIcon: IconButton(
+              onPressed: _submitMessage,
+              icon: const Icon(Icons.send),
+              color: Theme.of(context).colorScheme.primary,
+            )),
+      ),
     );
   }
 }
